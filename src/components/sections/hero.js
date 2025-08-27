@@ -61,7 +61,7 @@ const Hero = () => {
 
   const one = <h1>Hi, my name is</h1>;
   const two = <h2 className="big-heading">Syed Irfan.</h2>;
-  const three = <h3 className="big-heading">I build things on cloud.</h3>;
+  const three = <h3 className="big-heading">I build things in the cloud.</h3>;
   const four = (
     <>
       <p>
@@ -79,10 +79,10 @@ const Hero = () => {
   // const five = (
   //   <a
   //     className="email-link"
-  //     href="https://www.newline.co/courses/build-a-spotify-connected-app"
+  //     href="../../../static/Resume.pdf"
   //     target="_blank"
   //     rel="noreferrer">
-  //     Check out my course!
+  //     Resume
   //   </a>
   // );
 
