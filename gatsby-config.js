@@ -6,9 +6,9 @@ module.exports = {
   siteMetadata: {
     title: 'Syed Irfan',
     description:
-      'Syed Irfan is a cloud engineer who specializes in building (and occasionally designing) exceptional digital experiences.',
-    siteUrl: 'https://syed-irfan.com', // No trailing slash allowed!
-    image: '/og.png', // Path to your image you placed in the 'static' folder
+      'Syed Irfan is a Cloud Engineer with expertise in building and occasionally designing infrastructure that is both secure and scalable.',
+    siteUrl: 'http://syed-irfan-personal-portfolio.s3-website-us-west-2.amazonaws.com', // No trailing slash allowed!
+    image: '/og-v3.png', // Path to your image you placed in the 'static' folder
     twitterUsername: '@IrfanSyed06',
   },
   plugins: [
@@ -149,12 +149,6 @@ module.exports = {
             },
           },
         ],
-      },
-    },
-    {
-      resolve: `gatsby-plugin-google-analytics`,
-      options: {
-        trackingId: 'UA-45666519-2',
       },
     },
   ],
