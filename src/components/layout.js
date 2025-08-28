@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styled, { ThemeProvider } from 'styled-components';
-import { Head, Loader, Nav, Social, Email } from '@components';
+import { Head, Loader, Nav, Social, Email, MobileSocials, Footer } from '@components';
 import { GlobalStyle, theme } from '@styles';
 
 const StyledContent = styled.div`
@@ -65,11 +65,12 @@ const Layout = ({ children, location }) => {
               <Nav isHome={isHome} />
               <Social isHome={isHome} />
               <Email isHome={isHome} />
-
               <div id="content">
                 {children}
                 {/* <Footer /> */}
               </div>
+              <MobileSocials />
+              <Footer />
             </StyledContent>
           )}
         </ThemeProvider>

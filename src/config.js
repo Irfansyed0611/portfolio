@@ -1,8 +1,6 @@
 module.exports = {
   email: 'syedirfan0611@gmail.com',
 
-  //TODO: Need to check and change the twitter name to X
-
   socialMedia: [
     {
       name: 'GitHub',
@@ -13,8 +11,8 @@ module.exports = {
       url: 'https://www.instagram.com/_syedirfan._',
     },
     {
-      name: 'Twitter',
-      url: 'https://twitter.com/Irfansyed06',
+      name: 'X',
+      url: 'https://x.com/Irfansyed06',
     },
     {
       name: 'Linkedin',
