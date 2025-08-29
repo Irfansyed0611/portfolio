@@ -81,7 +81,6 @@ const StyledPic = styled.div`
     .img {
       position: relative;
       border-radius: var(--border-radius);
-      mix-blend-mode: normal;
       // filter: grayscale(100%) contrast(1);
       transition: var(--transition);
     }
@@ -100,8 +99,6 @@ const StyledPic = styled.div`
     &:before {
       top: 0;
       left: 0;
-      background-color: var(--navy);
-      mix-blend-mode: screen;
     }
 
     &:after {
@@ -166,7 +163,7 @@ const About = () => {
           <div className="wrapper">
             <StaticImage
               className="img"
-              src="../../images/me.jpg"
+              src="../../images/me.png"
               width={500}
               quality={95}
               formats={['AUTO', 'WEBP', 'AVIF']}
