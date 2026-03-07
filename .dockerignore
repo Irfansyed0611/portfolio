@@ -1,0 +1,28 @@
+# Node.js dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+.cache
+public
+
+# Git and related
+.git
+.gitignore
+
+# CI / Tooling / Local configs
+.husky
+.nvmrc
+.editorconfig
+.eslintrc
+.babelrc
+prettier.config.js
+
+# OS / IDE junk
+.DS_Store
+
+Dockerfile
+Dockerfile.dev
+
+
