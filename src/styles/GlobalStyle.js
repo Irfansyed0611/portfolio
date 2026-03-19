@@ -5,6 +5,8 @@ import TransitionStyles from './TransitionStyles';
 import PrismStyles from './PrismStyles';
 
 const GlobalStyle = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Space+Grotesk:wght@300;400;500&display=swap');
+
   ${fonts};
   ${variables};
 
@@ -167,16 +169,19 @@ const GlobalStyle = createGlobalStyle`
     font-weight: 600;
     color: var(--lightest-slate);
     line-height: 1.1;
+    font-family: var(--font-heading);
   }
 
   .big-heading {
     margin: 0;
     font-size: clamp(40px, 8vw, 80px);
+    font-family: var(--font-heading);
   }
 
   .medium-heading {
     margin: 0;
     font-size: clamp(40px, 8vw, 60px);
+    font-family: var(--font-heading);
   }
 
   .numbered-heading {
@@ -187,6 +192,7 @@ const GlobalStyle = createGlobalStyle`
     width: 100%;
     font-size: clamp(26px, 5vw, var(--fz-heading));
     white-space: nowrap;
+    font-family: var(--font-heading);
 
     &:before {
       position: relative;
@@ -391,7 +397,7 @@ const GlobalStyle = createGlobalStyle`
 
   .overline {
     color: var(--green);
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     font-size: var(--fz-md);
     font-weight: 400;
   }
@@ -400,7 +406,7 @@ const GlobalStyle = createGlobalStyle`
     color: var(--green);
     margin: 0 0 20px 0;
     font-size: var(--fz-md);
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     font-weight: 400;
     line-height: 1.5;
     @media (max-width: 1080px) {
@@ -430,7 +436,7 @@ const GlobalStyle = createGlobalStyle`
 
     a {
       ${({ theme }) => theme.mixins.inlineLink};
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       font-size: var(--fz-sm);
       font-weight: 600;
       line-height: 1.5;

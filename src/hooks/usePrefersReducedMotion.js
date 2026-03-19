@@ -3,27 +3,36 @@
  */
 
 import { useState, useEffect } from 'react';
-const QUERY = '(prefers-reduced-motion: no-preference)';
-const isRenderingOnServer = typeof window === 'undefined';
 
-const getInitialState = () =>
-  // For our initial server render, we won't know if the user
-  // prefers reduced motion, but it doesn't matter. This value
-  // will be overwritten on the client, before any animations
-  // occur.
-  isRenderingOnServer ? true : !window.matchMedia(QUERY).matches;
+const QUERY = '(prefers-reduced-motion: no-preference)';
+
 function usePrefersReducedMotion() {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(getInitialState);
+  // Keep the first client render aligned with SSR to avoid hydration mismatch.
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
+
   useEffect(() => {
     const mediaQueryList = window.matchMedia(QUERY);
+    setPrefersReducedMotion(!mediaQueryList.matches);
+
     const listener = event => {
       setPrefersReducedMotion(!event.matches);
     };
-    mediaQueryList.addListener(listener);
+
+    if (mediaQueryList.addEventListener) {
+      mediaQueryList.addEventListener('change', listener);
+    } else {
+      mediaQueryList.addListener(listener);
+    }
+
     return () => {
-      mediaQueryList.removeListener(listener);
+      if (mediaQueryList.removeEventListener) {
+        mediaQueryList.removeEventListener('change', listener);
+      } else {
+        mediaQueryList.removeListener(listener);
+      }
     };
   }, []);
+
   return prefersReducedMotion;
 }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { socialMedia } from '@config';
 import { Icon } from '@components/icons';
@@ -30,8 +31,8 @@ const StyledSocialLinks = styled.div`
   }
 `;
 
-const MobileSocials = () => (
-  <StyledSocialLinks>
+const MobileSocials = ({ className }) => (
+  <StyledSocialLinks className={className}>
     <ul>
       {socialMedia &&
         socialMedia.map(({ name, url }, i) => (
@@ -44,5 +45,13 @@ const MobileSocials = () => (
     </ul>
   </StyledSocialLinks>
 );
+
+MobileSocials.propTypes = {
+  className: PropTypes.string,
+};
+
+MobileSocials.defaultProps = {
+  className: undefined,
+};
 
 export default MobileSocials;

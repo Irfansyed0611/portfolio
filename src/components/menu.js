@@ -111,7 +111,7 @@ const StyledSidebar = styled.aside`
     width: 100%;
     flex-direction: column;
     color: var(--lightest-slate);
-    font-family: var(--font-mono);
+    font-family: var(--font-heading);
     text-align: center;
   }
 

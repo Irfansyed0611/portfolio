@@ -116,7 +116,7 @@ const StyledPost = styled.li`
 
   .post__date {
     color: var(--light-slate);
-    font-family: var(--font-mono);
+    font-family: var(--font-body);
     font-size: var(--fz-xxs);
     text-transform: uppercase;
   }
@@ -131,7 +131,7 @@ const StyledPost = styled.li`
 
     li {
       color: var(--green);
-      font-family: var(--font-mono);
+      font-family: var(--font-body);
       font-size: var(--fz-xxs);
       line-height: 1.75;
 
@@ -211,7 +211,10 @@ export default PensievePage;
 export const pageQuery = graphql`
   {
     allMarkdownRemark(
-      filter: { fileAbsolutePath: { regex: "/content/posts/" }, frontmatter: { draft: { ne: true } } }
+      filter: {
+        fileAbsolutePath: { regex: "/content/posts/" }
+        frontmatter: { draft: { ne: true } }
+      }
       sort: { fields: [frontmatter___date], order: DESC }
     ) {
       edges {

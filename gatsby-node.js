@@ -7,6 +7,16 @@
 const path = require('path');
 const _ = require('lodash');
 
+// Polyfill for Node 18+ undici missing global.File causing gatsby-transformer-remark to crash
+if (typeof File === 'undefined') {
+  global.File = class File extends require('buffer').Blob {
+    constructor(fileBits, fileName, options) {
+      super(fileBits, options);
+      this.name = fileName;
+    }
+  };
+}
+
 exports.createPages = async ({ actions, graphql, reporter }) => {
   const { createPage } = actions;
   const postTemplate = path.resolve(`src/templates/post.js`);
@@ -83,6 +93,10 @@ exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
           },
           {
             test: /miniraf/,
+            use: loaders.null(),
+          },
+          {
+            test: /@splinetool/,
             use: loaders.null(),
           },
         ],

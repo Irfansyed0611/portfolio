@@ -42,7 +42,7 @@ const StyledSocialLinks = styled.div`
 
 const StyledCredit = styled.div`
   color: var(--light-slate);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--fz-xxs);
   line-height: 1;
 
@@ -83,24 +83,8 @@ const Footer = () => (
     </StyledSocialLinks>
 
     <StyledCredit tabIndex="-1">
-      <a href="https://brittanychiang.com">
-        <div>Design by Brittany Chiang</div>
-      </a>
-      <a href="https://github.com/bchiang7/v4">
-        {/* <div>Designed &amp; Built by Brittany Chiang</div> */}
-
-        {/* {githubInfo.stars && githubInfo.forks && (
-            <div className="github-stats">
-              <span>
-                <Icon name="Star" />
-                <span>{githubInfo.stars.toLocaleString()}</span>
-              </span>
-              <span>
-                <Icon name="Fork" />
-                <span>{githubInfo.forks.toLocaleString()}</span>
-              </span>
-            </div>
-          )} */}
+      <a href="https://github.com/Irfansyed06">
+        <div>Designed &amp; Built by Syed Irfan</div>
       </a>
     </StyledCredit>
   </StyledFooter>

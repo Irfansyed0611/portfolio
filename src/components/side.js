@@ -25,16 +25,18 @@ const StyledSideElement = styled.div`
 `;
 
 const Side = ({ children, isHome, orientation }) => {
-  const [isMounted, setIsMounted] = useState(!isHome);
+  const [isMounted, setIsMounted] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     if (!isHome || prefersReducedMotion) {
+      setIsMounted(true);
       return;
     }
-    const timeout = setTimeout(() => setIsMounted(true), loaderDelay);
+
+    const timeout = setTimeout(() => setIsMounted(true), 100);
     return () => clearTimeout(timeout);
-  }, []);
+  }, [isHome, prefersReducedMotion]);
 
   return (
     <StyledSideElement orientation={orientation}>

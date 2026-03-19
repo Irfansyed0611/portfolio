@@ -9,15 +9,19 @@ import { useScrollDirection, usePrefersReducedMotion } from '@hooks';
 import { Menu } from '@components';
 import { IconLogo, IconHex } from '@components/icons';
 
-const StyledHeader = styled.header`
+const StyledHeader = styled.header.withConfig({
+  componentId: 'nav__StyledHeader',
+})`
   ${({ theme }) => theme.mixins.flexBetween};
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 11;
   padding: 0px 50px;
   width: 100%;
   height: var(--nav-height);
-  background-color: rgba(10, 25, 47, 0.85);
+  background-color: rgba(5, 5, 5, 0.85);
   filter: none !important;
   pointer-events: auto !important;
   user-select: auto !important;
@@ -38,7 +42,7 @@ const StyledHeader = styled.header`
       css`
         height: var(--nav-scroll-height);
         transform: translateY(0px);
-        background-color: rgba(10, 25, 47, 0.85);
+        background-color: rgba(5, 5, 5, 0.85);
         box-shadow: 0 10px 30px -10px var(--navy-shadow);
       `};
 
@@ -53,12 +57,14 @@ const StyledHeader = styled.header`
   }
 `;
 
-const StyledNav = styled.nav`
+const StyledNav = styled.nav.withConfig({
+  componentId: 'nav__StyledNav',
+})`
   ${({ theme }) => theme.mixins.flexBetween};
   position: relative;
   width: 100%;
   color: var(--lightest-slate);
-  font-family: var(--font-mono);
+  font-family: var(--font-heading);
   counter-reset: item 0;
   z-index: 12;
 
@@ -109,21 +115,29 @@ const StyledNav = styled.nav`
   }
 `;
 
-const StyledLinks = styled.div`
+const StyledLinks = styled.div.withConfig({
+  componentId: 'nav__StyledLinks',
+})`
   display: flex;
   align-items: center;
+  min-width: 0;
 
   @media (max-width: 768px) {
     display: none;
   }
 
   ol {
-    ${({ theme }) => theme.mixins.flexBetween};
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    white-space: nowrap;
     padding: 0;
     margin: 0;
     list-style: none;
 
     li {
+      flex: 0 0 auto;
       margin: 0 5px;
       position: relative;
       counter-increment: item 1;
@@ -151,8 +165,8 @@ const StyledLinks = styled.div`
 `;
 
 const Nav = ({ isHome }) => {
-  const [isMounted, setIsMounted] = useState(!isHome);
-  const scrollDirection = useScrollDirection('down');
+  const [isMounted, setIsMounted] = useState(false);
+  const scrollDirection = useScrollDirection({ initialDirection: 'down' });
   const [scrolledToTop, setScrolledToTop] = useState(true);
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -161,21 +175,20 @@ const Nav = ({ isHome }) => {
   };
 
   useEffect(() => {
-    if (prefersReducedMotion) {
-      return;
+    let timeout;
+    if (!prefersReducedMotion) {
+      timeout = setTimeout(() => {
+        setIsMounted(true);
+      }, 100);
     }
-
-    const timeout = setTimeout(() => {
-      setIsMounted(true);
-    }, 100);
 
     window.addEventListener('scroll', handleScroll);
 
     return () => {
-      clearTimeout(timeout);
+      if (timeout) {clearTimeout(timeout);}
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   const timeout = isHome ? loaderDelay : 0;
   const fadeClass = isHome ? 'fade' : '';

@@ -1,107 +1,387 @@
 import React, { useState, useEffect } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled from 'styled-components';
-import { navDelay, loaderDelay } from '@utils';
+import { navDelay } from '@utils';
 import { usePrefersReducedMotion } from '@hooks';
+import SplineCanvas, { preloadSplineRuntime } from '@components/spline-canvas';
+import MobileSocials from '@components/MobileSocials';
 
 const StyledHeroSection = styled.section`
   ${({ theme }) => theme.mixins.flexCenter};
   flex-direction: column;
-  align-items: flex-start;
+  width: 100%;
+  max-width: 1320px;
   min-height: 100vh;
-  height: 100vh;
   padding: 0;
+  overflow: visible;
+`;
 
-  @media (max-height: 700px) and (min-width: 700px), (max-width: 360px) {
-    height: auto;
-    padding-top: var(--nav-height);
+const HeroContainer = styled.div`
+  width: 100%;
+  max-width: 1320px; /* Revert to 1000px if you want the previous boxed width */
+  height: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    min-height: 100vh;
+  }
+  background-color: transparent;
+`;
+
+const ContentPanel = styled.div`
+  flex: 1;
+  min-width: 0;
+  padding: calc(var(--nav-height) + 8px) 0 24px;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  @media (min-width: 768px) {
+    padding: calc(var(--nav-height) + 32px) 60px 60px;
+    justify-content: center;
+    ${({ $passThrough }) =>
+    $passThrough &&
+      `
+        pointer-events: none;
+
+        p.intro,
+        h1.name,
+        h2.tagline,
+        p.description,
+        .resume-link,
+        .mobile-socials,
+        .mobile-socials * {
+          pointer-events: auto;
+        }
+      `}
   }
 
-  h1 {
-    margin: 0 0 30px 4px;
-    color: var(--green);
-    font-family: var(--font-mono);
-    font-size: clamp(var(--fz-sm), 5vw, var(--fz-md));
-    font-weight: 400;
-
-    @media (max-width: 480px) {
-      margin: 0 0 20px 2px;
-    }
+  p.intro {
+    margin: 0 0 10px;
+    color: var(--green); /* Mapped existing green coordinate */
+    font-family: var(--font-body);
+    font-size: 15px;
   }
 
-  h3 {
-    margin-top: 5px;
+  h1.name {
+    margin: 10px 0 30px 4px;
+    font-size: clamp(40px, 8vw, 80px);
+    font-weight: 700;
+    color: var(--lightest-slate);
+    line-height: 1.1;
+  }
+
+  h2.tagline {
+    margin: 5px 0 0;
+    font-size: clamp(22px, 4.6vw, 48px);
+    font-weight: 600;
     color: var(--slate);
     line-height: 0.9;
+    white-space: nowrap;
   }
 
-  p {
+  p.description {
     margin: 20px 0 0;
     max-width: 540px;
+    color: var(--slate);
+    font-size: var(--fz-lg);
   }
 
-  .email-link {
+  .resume-link {
     ${({ theme }) => theme.mixins.bigButton};
-    margin-top: 50px;
+    align-self: flex-start;
+    margin-top: 30px;
+  }
+
+  .mobile-socials {
+    align-self: flex-start;
+    width: auto;
+    max-width: none;
+    margin-top: 18px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .mobile-socials ul {
+    justify-content: flex-start;
+    gap: 6px;
+  }
+`;
+
+const HeroSceneLayer = styled.div`
+  display: none;
+
+  @media (min-width: 768px) {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: visible;
+    pointer-events: auto;
+  }
+
+  .scene-shell {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+  }
+
+  .scene-shell > div {
+    width: 100%;
+    height: 100%;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+    outline: none;
+  }
+
+  .loader-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .loader-spin {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-left-color: var(--green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const ScenePanel = styled.div`
+  display: none;
+
+  @media (min-width: 768px) {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    min-height: clamp(620px, 78vh, 860px);
+    align-items: flex-end;
+    justify-content: center;
+    align-self: stretch;
+    overflow: visible;
+    isolation: isolate;
+    contain: layout paint;
+  }
+
+  .scene-shell {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: visible;
+  }
+
+  .scene-shell > div {
+    width: 100%;
+    height: 100%;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+    outline: none;
+  }
+
+  .loader-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .loader-spin {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-left-color: var(--green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;
 
 const Hero = () => {
   const [isMounted, setIsMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [showHero, setShowHero] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
+    const desktopQuery = window.matchMedia('(min-width: 769px)');
+    const shouldRunSpline = desktopQuery.matches && !prefersReducedMotion;
+
+    setIsDesktop(desktopQuery.matches);
+    setIsMounted(shouldRunSpline);
+
+    if (shouldRunSpline) {
+      preloadSplineRuntime();
+    }
+
+    const preconnectHref = 'https://prod.spline.design';
+    const existingPreconnect = document.head.querySelector(`link[href="${preconnectHref}"]`);
+    let appendedPreconnect = null;
+    if (!existingPreconnect) {
+      appendedPreconnect = document.createElement('link');
+      appendedPreconnect.rel = 'preconnect';
+      appendedPreconnect.href = preconnectHref;
+      appendedPreconnect.crossOrigin = 'anonymous';
+      document.head.appendChild(appendedPreconnect);
+    }
+
+    const handleMediaChange = event => {
+      const isNowDesktop = event.matches;
+      setIsDesktop(isNowDesktop);
+      const mountSpline = isNowDesktop && !prefersReducedMotion;
+      setIsMounted(mountSpline);
+      if (mountSpline) {
+        preloadSplineRuntime();
+      }
+    };
+
+    if (desktopQuery.addEventListener) {
+      desktopQuery.addEventListener('change', handleMediaChange);
+    } else {
+      desktopQuery.addListener(handleMediaChange);
+    }
+
+    const cleanupMediaListener = () => {
+      if (desktopQuery.removeEventListener) {
+        desktopQuery.removeEventListener('change', handleMediaChange);
+      } else {
+        desktopQuery.removeListener(handleMediaChange);
+      }
+    };
+
     if (prefersReducedMotion) {
+      return () => {
+        cleanupMediaListener();
+        if (appendedPreconnect) {
+          appendedPreconnect.remove();
+        }
+      };
+    }
+
+    return () => {
+      cleanupMediaListener();
+      if (appendedPreconnect) {
+        appendedPreconnect.remove();
+      }
+    };
+  }, [prefersReducedMotion]);
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setShowHero(true);
       return;
     }
 
-    const timeout = setTimeout(() => setIsMounted(true), navDelay);
+    const timeout = setTimeout(() => setShowHero(true), 100);
     return () => clearTimeout(timeout);
-  }, []);
+  }, [prefersReducedMotion]);
 
-  const one = <h1>Hi, my name is</h1>;
-  const two = <h2 className="big-heading">Syed Irfan.</h2>;
-  const three = <h3 className="big-heading">I build things in the cloud.</h3>;
-  const four = (
-    <>
-      <p>
-        I’m a certified AWS Solutions Architect with expertise in designing and implementing secure,
-        scalable, and cost-optimized cloud infrastructures. Currently working on DevOps projects,
-        leveraging tools like Terraform, Docker, and CI/CD pipelines to automate and streamline
-        cloud operations at{' '}
-        <a href="https://www.stratogent.com" target="_blank" rel="noreferrer">
-          Stratogent
-        </a>
-        .
-      </p>
-    </>
-  );
-  const five = (
-    <a className="email-link" href="/Resume.pdf" target="_blank" rel="noreferrer">
-      Resume
-    </a>
-  );
-
-  const items = [one, two, three, four, five];
+  const shouldShowSpline = isMounted && isDesktop;
 
   return (
     <StyledHeroSection>
-      {prefersReducedMotion ? (
-        <>
-          {items.map((item, i) => (
-            <div key={i}>{item}</div>
-          ))}
-        </>
-      ) : (
-        <TransitionGroup component={null}>
-          {isMounted &&
-            items.map((item, i) => (
-              <CSSTransition key={i} classNames="fadeup" timeout={loaderDelay}>
-                <div style={{ transitionDelay: `${i + 1}00ms` }}>{item}</div>
-              </CSSTransition>
-            ))}
-        </TransitionGroup>
-      )}
+      <HeroContainer>
+        {prefersReducedMotion ? (
+          <>
+            <ContentPanel>
+              <p className="intro">Hi, my name is</p>
+              <h1 className="name">Syed Irfan.</h1>
+              <h2 className="tagline">I build things in the cloud.</h2>
+              <a className="resume-link" href="/Resume.pdf" target="_blank" rel="noreferrer">
+                Resume
+              </a>
+              <MobileSocials className="mobile-socials" />
+            </ContentPanel>
+
+            <ScenePanel>
+              {shouldShowSpline ? (
+                <div className="scene-shell" aria-hidden="true">
+                  <SplineCanvas scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" />
+                </div>
+              ) : (
+                <div className="loader-wrapper">
+                  <div className="loader-spin"></div>
+                </div>
+              )}
+            </ScenePanel>
+          </>
+        ) : (
+          <>
+            <TransitionGroup component={null}>
+              {showHero && (
+                <CSSTransition classNames="fadeup" timeout={navDelay}>
+                  <HeroSceneLayer style={{ transitionDelay: '100ms' }} aria-hidden="true">
+                    {shouldShowSpline ? (
+                      <div className="scene-shell">
+                        <SplineCanvas scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" />
+                      </div>
+                    ) : (
+                      <div className="loader-wrapper">
+                        <div className="loader-spin"></div>
+                      </div>
+                    )}
+                  </HeroSceneLayer>
+                </CSSTransition>
+              )}
+            </TransitionGroup>
+
+            <TransitionGroup component={null}>
+              {showHero && (
+                <CSSTransition classNames="fadeup" timeout={navDelay}>
+                  <ContentPanel $passThrough>
+                    <p className="intro">Hi, my name is</p>
+                    <h1 className="name">Syed Irfan.</h1>
+                    <h2 className="tagline">I build things in the cloud.</h2>
+                    <a className="resume-link" href="/Resume.pdf" target="_blank" rel="noreferrer">
+                      Resume
+                    </a>
+                    <MobileSocials className="mobile-socials" />
+                  </ContentPanel>
+                </CSSTransition>
+              )}
+            </TransitionGroup>
+
+            <ScenePanel aria-hidden="true" />
+          </>
+        )}
+      </HeroContainer>
     </StyledHeroSection>
   );
 };

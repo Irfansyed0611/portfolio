@@ -4,9 +4,10 @@ import styled from 'styled-components';
 import { srConfig } from '@config';
 import sr from '@utils/sr';
 import { usePrefersReducedMotion } from '@hooks';
+import SkillsSection from './SkillsSection';
 
 const StyledAboutSection = styled.section`
-  max-width: 900px;
+  max-width: 1000px;
 
   .inner {
     display: grid;
@@ -18,34 +19,7 @@ const StyledAboutSection = styled.section`
     }
   }
 `;
-const StyledText = styled.div`
-  ul.skills-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(140px, 200px));
-    grid-gap: 0 10px;
-    padding: 0;
-    margin: 20px 0 0 0;
-    overflow: hidden;
-    list-style: none;
-
-    li {
-      position: relative;
-      margin-bottom: 10px;
-      padding-left: 20px;
-      font-family: var(--font-mono);
-      font-size: var(--fz-xs);
-
-      &:before {
-        content: '▹';
-        position: absolute;
-        left: 0;
-        color: var(--green);
-        font-size: var(--fz-sm);
-        line-height: 12px;
-      }
-    }
-  }
-`;
+const StyledText = styled.div``;
 const StyledPic = styled.div`
   position: relative;
   max-width: 300px;
@@ -121,9 +95,6 @@ const About = () => {
 
     sr.reveal(revealContainer.current, srConfig());
   }, []);
-
-  const skills = ['AWS', 'Terraform', 'Docker', 'GitHub Actions', 'Bash Scripting', 'Python'];
-
   return (
     <StyledAboutSection id="about" ref={revealContainer}>
       <h2 className="numbered-heading">About Me</h2>
@@ -132,31 +103,25 @@ const About = () => {
         <StyledText>
           <div>
             <p>
-              Hi, I’m Syed Irfan — a Cloud Engineer with 2 years of experience working with AWS and
-              Linux administration. I’m currently part of the team at{' '}
-              <a href="https://www.stratogent.com">Stratogent</a>, , where I get to design, manage,
-              and optimize cloud infrastructure.
+              I&apos;m a Cloud Engineer at <a href="https://www.stratogent.com">Stratogent</a> who
+              genuinely enjoys the problem-solving side of infrastructure, figuring out how to make
+              systems more secure, scalable, and cost-efficient.
             </p>
 
             <p>
-              Over the past two years, I’ve gained experience across infrastructure management,
-              monitoring, cloud architecture, and DevOps practices. What excites me the most is
-              figuring out how to host applications in the cloud in a way that’s secure, scalable,
-              and cost-efficient.
+              Over the past two years, I&apos;ve worked across a pretty wide stack: AWS, Linux,
+              Docker, Terraform, CI/CD pipelines, serverless architectures, and I&apos;m still
+              adding to it. I&apos;ve found my sweet spot in translating messy, real-world
+              application requirements into clean cloud operations.
             </p>
 
             <p>
-              Outside of work, I sometimes like to build my own applications — experimenting with
-              new tools, automating small workflows, and exploring how different pieces of
-              technology fit together. It’s a fun way to keep learning and stay creative.
+              Outside of work, that same instinct carries over. I&apos;m usually tinkering with
+              something, a new tool, a workflow I want to streamline, or just a side project that
+              scratches a curiosity itch. It keeps me sharp and, honestly, it&apos;s just fun.
             </p>
-
-            <p>Here are a few technologies I’ve been working with recently:</p>
           </div>
-
-          <ul className="skills-list">
-            {skills && skills.map((skill, i) => <li key={i}>{skill}</li>)}
-          </ul>
+          <SkillsSection />
         </StyledText>
 
         <StyledPic>
