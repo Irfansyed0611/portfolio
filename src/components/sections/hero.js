@@ -3,8 +3,10 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled from 'styled-components';
 import { navDelay } from '@utils';
 import { usePrefersReducedMotion } from '@hooks';
-import SplineCanvas, { preloadSplineRuntime } from '@components/spline-canvas';
+import SplineCanvas, { preloadSplineRuntime, preloadSplineScene } from '@components/spline-canvas';
 import MobileSocials from '@components/MobileSocials';
+
+const HERO_SCENE_URL = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
 
 const StyledHeroSection = styled.section`
   ${({ theme }) => theme.mixins.flexCenter};
@@ -46,7 +48,7 @@ const ContentPanel = styled.div`
     padding: calc(var(--nav-height) + 32px) 60px 60px;
     justify-content: center;
     ${({ $passThrough }) =>
-    $passThrough &&
+      $passThrough &&
       `
         pointer-events: none;
 
@@ -249,17 +251,40 @@ const Hero = () => {
 
     if (shouldRunSpline) {
       preloadSplineRuntime();
+      preloadSplineScene(HERO_SCENE_URL);
     }
 
     const preconnectHref = 'https://prod.spline.design';
     const existingPreconnect = document.head.querySelector(`link[href="${preconnectHref}"]`);
+    const existingDnsPrefetch = document.head.querySelector(
+      `link[rel="dns-prefetch"][href="${preconnectHref}"]`,
+    );
+    const existingScenePreload = document.head.querySelector(
+      `link[rel="preload"][href="${HERO_SCENE_URL}"]`,
+    );
     let appendedPreconnect = null;
+    let appendedDnsPrefetch = null;
+    let appendedScenePreload = null;
     if (!existingPreconnect) {
       appendedPreconnect = document.createElement('link');
       appendedPreconnect.rel = 'preconnect';
       appendedPreconnect.href = preconnectHref;
       appendedPreconnect.crossOrigin = 'anonymous';
       document.head.appendChild(appendedPreconnect);
+    }
+    if (!existingDnsPrefetch) {
+      appendedDnsPrefetch = document.createElement('link');
+      appendedDnsPrefetch.rel = 'dns-prefetch';
+      appendedDnsPrefetch.href = preconnectHref;
+      document.head.appendChild(appendedDnsPrefetch);
+    }
+    if (!existingScenePreload && shouldRunSpline) {
+      appendedScenePreload = document.createElement('link');
+      appendedScenePreload.rel = 'preload';
+      appendedScenePreload.as = 'fetch';
+      appendedScenePreload.href = HERO_SCENE_URL;
+      appendedScenePreload.crossOrigin = 'anonymous';
+      document.head.appendChild(appendedScenePreload);
     }
 
     const handleMediaChange = event => {
@@ -269,6 +294,7 @@ const Hero = () => {
       setIsMounted(mountSpline);
       if (mountSpline) {
         preloadSplineRuntime();
+        preloadSplineScene(HERO_SCENE_URL);
       }
     };
 
@@ -292,6 +318,12 @@ const Hero = () => {
         if (appendedPreconnect) {
           appendedPreconnect.remove();
         }
+        if (appendedDnsPrefetch) {
+          appendedDnsPrefetch.remove();
+        }
+        if (appendedScenePreload) {
+          appendedScenePreload.remove();
+        }
       };
     }
 
@@ -299,6 +331,12 @@ const Hero = () => {
       cleanupMediaListener();
       if (appendedPreconnect) {
         appendedPreconnect.remove();
+      }
+      if (appendedDnsPrefetch) {
+        appendedDnsPrefetch.remove();
+      }
+      if (appendedScenePreload) {
+        appendedScenePreload.remove();
       }
     };
   }, [prefersReducedMotion]);
@@ -333,7 +371,7 @@ const Hero = () => {
             <ScenePanel>
               {shouldShowSpline ? (
                 <div className="scene-shell" aria-hidden="true">
-                  <SplineCanvas scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" />
+                  <SplineCanvas scene={HERO_SCENE_URL} />
                 </div>
               ) : (
                 <div className="loader-wrapper">
@@ -350,7 +388,7 @@ const Hero = () => {
                   <HeroSceneLayer style={{ transitionDelay: '100ms' }} aria-hidden="true">
                     {shouldShowSpline ? (
                       <div className="scene-shell">
-                        <SplineCanvas scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" />
+                        <SplineCanvas scene={HERO_SCENE_URL} />
                       </div>
                     ) : (
                       <div className="loader-wrapper">
