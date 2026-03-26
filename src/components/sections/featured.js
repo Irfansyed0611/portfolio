@@ -63,7 +63,11 @@ const Featured = () => {
   });
 
   return (
-    <section id="projects" style={{ position: 'relative', paddingBottom: '20px' }}>
+    <section
+      id="projects"
+      data-reveal-ignore
+      style={{ position: 'relative', paddingBottom: '20px' }}
+    >
       {/* 
         This wrapper is critical. The GSAP pin adds window.innerHeight * (cards.length - 1) 
         of scrollable padding. If it's not wrapped or styled properly, the next section 
