@@ -75,6 +75,27 @@ const StickyCard002 = ({ cards, title }) => {
         return;
       }
 
+      // Smooth scroll-reveal animation for heading and cards boundary
+      gsap.fromTo(
+        ['.sticky-heading', '.sticky-card-boundary'],
+        {
+          opacity: 0,
+          y: 60,
+        },
+        {
+          scrollTrigger: {
+            trigger: stickyRoot,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: 'power2.out',
+        },
+      );
+
       const mm = gsap.matchMedia();
       let refreshFrame = null;
       const queueRefresh = () => {
@@ -120,7 +141,7 @@ const StickyCard002 = ({ cards, title }) => {
               start: 'center center',
               end: () => `+=${window.innerHeight * Math.max(totalCards - 1, 1)}`,
               pin: true,
-              scrub: isMobile ? 0.12 : 0.2,
+              scrub: 0.5,
               pinSpacing: true,
               anticipatePin: 1,
               fastScrollEnd: true,
@@ -143,7 +164,7 @@ const StickyCard002 = ({ cards, title }) => {
 
             scrollTimeline.to(
               currentCard,
-              { scale: isMobile ? 0.9 : 0.82, rotation: isMobile ? 0 : 2.5, force3D: true },
+              { scale: isMobile ? 0.9 : 0.7, rotation: isMobile ? 0 : 5, force3D: true },
               i,
             );
             scrollTimeline.to(nextCard, { yPercent: 0, force3D: true }, i);

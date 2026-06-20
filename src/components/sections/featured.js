@@ -1,9 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { useStaticQuery, graphql } from 'gatsby';
 import { getImage } from 'gatsby-plugin-image';
-import sr from '@utils/sr';
-import { srConfig } from '@config';
-import { usePrefersReducedMotion } from '@hooks';
 import { StickyCard002 } from './StickyCard002';
 
 const Featured = () => {
@@ -34,16 +31,6 @@ const Featured = () => {
   `);
 
   const featuredProjects = data.featured.edges.filter(({ node }) => node);
-  const revealTitle = useRef(null);
-  const prefersReducedMotion = usePrefersReducedMotion();
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      return;
-    }
-
-    sr.reveal(revealTitle.current, srConfig());
-  }, []);
 
   // Map Gatsby GraphQL data → CardData shape that StickyCard002 expects
   const cards = featuredProjects.map(({ node }, i) => {
@@ -77,11 +64,7 @@ const Featured = () => {
       <div style={{ position: 'relative', width: '100%' }}>
         <StickyCard002
           cards={cards}
-          title={
-            <h2 className="numbered-heading" ref={revealTitle}>
-              Solutions I've Engineered
-            </h2>
-          }
+          title={<h2 className="numbered-heading">Solutions I've Engineered</h2>}
         />
       </div>
     </section>
