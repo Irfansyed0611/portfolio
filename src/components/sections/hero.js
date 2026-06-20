@@ -3,7 +3,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled from 'styled-components';
 import { navDelay } from '@utils';
 import { usePrefersReducedMotion } from '@hooks';
-import SplineCanvas, { preloadSplineRuntime, preloadSplineScene } from '@components/spline-canvas';
+import SplineCanvas, { shouldEnableSplineExperience } from '@components/spline-canvas';
 import MobileSocials from '@components/MobileSocials';
 
 const HERO_SCENE_URL = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
@@ -48,7 +48,7 @@ const ContentPanel = styled.div`
     padding: calc(var(--nav-height) + 32px) 60px 60px;
     justify-content: center;
     ${({ $passThrough }) =>
-      $passThrough &&
+    $passThrough &&
       `
         pointer-events: none;
 
@@ -148,27 +148,66 @@ const HeroSceneLayer = styled.div`
   .loader-wrapper {
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     position: absolute;
     top: 0;
     left: 0;
+    pointer-events: none;
+    opacity: ${({ $sceneReady }) => ($sceneReady ? 0 : 1)};
+    transition: opacity 280ms ease;
   }
 
-  .loader-spin {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
-    border-left-color: var(--green);
+  .fallback-shell {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 68% 34%, rgba(100, 255, 218, 0.22), transparent 22%),
+      radial-gradient(circle at 52% 58%, rgba(72, 152, 255, 0.18), transparent 28%),
+      linear-gradient(135deg, rgba(10, 25, 47, 0.96), rgba(17, 34, 64, 0.9));
+  }
+
+  .fallback-shell::before {
+    content: '';
+    position: absolute;
+    inset: 10% 8%;
+    border: 1px solid rgba(100, 255, 218, 0.16);
+    border-radius: 32px;
+    transform: skew(-10deg);
+  }
+
+  .fallback-shell::after {
+    content: '';
+    position: absolute;
+    inset: auto 12% 12% auto;
+    width: min(28vw, 280px);
+    height: min(28vw, 280px);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    background: radial-gradient(circle, rgba(100, 255, 218, 0.28), transparent 68%);
+    filter: blur(12px);
   }
 
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+  .fallback-copy {
+    position: absolute;
+    right: clamp(24px, 4vw, 48px);
+    bottom: clamp(24px, 5vw, 56px);
+    max-width: 260px;
+    padding: 18px 20px;
+    border: 1px solid rgba(100, 255, 218, 0.16);
+    border-radius: 18px;
+    background: rgba(10, 25, 47, 0.64);
+    backdrop-filter: blur(10px);
+    color: var(--slate);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .fallback-copy strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--lightest-slate);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 `;
 
@@ -212,59 +251,103 @@ const ScenePanel = styled.div`
   .loader-wrapper {
     width: 100%;
     height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     position: absolute;
     top: 0;
     left: 0;
+    pointer-events: none;
+    opacity: ${({ $sceneReady }) => ($sceneReady ? 0 : 1)};
+    transition: opacity 280ms ease;
   }
 
-  .loader-spin {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
-    border-left-color: var(--green);
+  .fallback-shell {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    background: radial-gradient(circle at 68% 34%, rgba(100, 255, 218, 0.22), transparent 22%),
+      radial-gradient(circle at 52% 58%, rgba(72, 152, 255, 0.18), transparent 28%),
+      linear-gradient(135deg, rgba(10, 25, 47, 0.96), rgba(17, 34, 64, 0.9));
+  }
+
+  .fallback-shell::before {
+    content: '';
+    position: absolute;
+    inset: 10% 8%;
+    border: 1px solid rgba(100, 255, 218, 0.16);
+    border-radius: 32px;
+    transform: skew(-10deg);
+  }
+
+  .fallback-shell::after {
+    content: '';
+    position: absolute;
+    inset: auto 12% 12% auto;
+    width: min(28vw, 280px);
+    height: min(28vw, 280px);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    background: radial-gradient(circle, rgba(100, 255, 218, 0.28), transparent 68%);
+    filter: blur(12px);
   }
 
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+  .fallback-copy {
+    position: absolute;
+    right: clamp(24px, 4vw, 48px);
+    bottom: clamp(24px, 5vw, 56px);
+    max-width: 260px;
+    padding: 18px 20px;
+    border: 1px solid rgba(100, 255, 218, 0.16);
+    border-radius: 18px;
+    background: rgba(10, 25, 47, 0.64);
+    backdrop-filter: blur(10px);
+    color: var(--slate);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .fallback-copy strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--lightest-slate);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 `;
 
+const HeroSceneFallback = () => (
+  <div>
+    <div className="fallback-shell">
+      <div className="fallback-copy">
+        <strong>Interactive Preview</strong>
+        The 3D scene loads only after the hero stays in view, keeping the first paint fast and
+        stable.
+      </div>
+    </div>
+  </div>
+);
+
 const Hero = () => {
-  const [isMounted, setIsMounted] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [canUseSpline, setCanUseSpline] = useState(false);
+  const [isSceneReady, setIsSceneReady] = useState(false);
   const [showHero, setShowHero] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const desktopQuery = window.matchMedia('(min-width: 769px)');
-    const shouldRunSpline = desktopQuery.matches && !prefersReducedMotion;
 
     setIsDesktop(desktopQuery.matches);
-    setIsMounted(shouldRunSpline);
-
-    if (shouldRunSpline) {
-      preloadSplineRuntime();
-      preloadSplineScene(HERO_SCENE_URL);
-    }
+    setCanUseSpline(shouldEnableSplineExperience(prefersReducedMotion));
+    setIsSceneReady(false);
 
     const preconnectHref = 'https://prod.spline.design';
     const existingPreconnect = document.head.querySelector(`link[href="${preconnectHref}"]`);
     const existingDnsPrefetch = document.head.querySelector(
       `link[rel="dns-prefetch"][href="${preconnectHref}"]`,
     );
-    const existingScenePreload = document.head.querySelector(
-      `link[rel="preload"][href="${HERO_SCENE_URL}"]`,
-    );
     let appendedPreconnect = null;
     let appendedDnsPrefetch = null;
-    let appendedScenePreload = null;
     if (!existingPreconnect) {
       appendedPreconnect = document.createElement('link');
       appendedPreconnect.rel = 'preconnect';
@@ -278,24 +361,11 @@ const Hero = () => {
       appendedDnsPrefetch.href = preconnectHref;
       document.head.appendChild(appendedDnsPrefetch);
     }
-    if (!existingScenePreload && shouldRunSpline) {
-      appendedScenePreload = document.createElement('link');
-      appendedScenePreload.rel = 'preload';
-      appendedScenePreload.as = 'fetch';
-      appendedScenePreload.href = HERO_SCENE_URL;
-      appendedScenePreload.crossOrigin = 'anonymous';
-      document.head.appendChild(appendedScenePreload);
-    }
 
     const handleMediaChange = event => {
-      const isNowDesktop = event.matches;
-      setIsDesktop(isNowDesktop);
-      const mountSpline = isNowDesktop && !prefersReducedMotion;
-      setIsMounted(mountSpline);
-      if (mountSpline) {
-        preloadSplineRuntime();
-        preloadSplineScene(HERO_SCENE_URL);
-      }
+      setIsDesktop(event.matches);
+      setCanUseSpline(shouldEnableSplineExperience(prefersReducedMotion));
+      setIsSceneReady(false);
     };
 
     if (desktopQuery.addEventListener) {
@@ -312,21 +382,6 @@ const Hero = () => {
       }
     };
 
-    if (prefersReducedMotion) {
-      return () => {
-        cleanupMediaListener();
-        if (appendedPreconnect) {
-          appendedPreconnect.remove();
-        }
-        if (appendedDnsPrefetch) {
-          appendedDnsPrefetch.remove();
-        }
-        if (appendedScenePreload) {
-          appendedScenePreload.remove();
-        }
-      };
-    }
-
     return () => {
       cleanupMediaListener();
       if (appendedPreconnect) {
@@ -334,9 +389,6 @@ const Hero = () => {
       }
       if (appendedDnsPrefetch) {
         appendedDnsPrefetch.remove();
-      }
-      if (appendedScenePreload) {
-        appendedScenePreload.remove();
       }
     };
   }, [prefersReducedMotion]);
@@ -351,7 +403,7 @@ const Hero = () => {
     return () => clearTimeout(timeout);
   }, [prefersReducedMotion]);
 
-  const shouldShowSpline = isMounted && isDesktop;
+  const shouldShowSpline = canUseSpline && isDesktop;
 
   return (
     <StyledHeroSection>
@@ -368,14 +420,17 @@ const Hero = () => {
               <MobileSocials className="mobile-socials" />
             </ContentPanel>
 
-            <ScenePanel>
-              {shouldShowSpline ? (
+            <ScenePanel $sceneReady={isSceneReady}>
+              <div className="loader-wrapper" aria-hidden="true">
+                <HeroSceneFallback />
+              </div>
+              {shouldShowSpline && (
                 <div className="scene-shell" aria-hidden="true">
-                  <SplineCanvas scene={HERO_SCENE_URL} />
-                </div>
-              ) : (
-                <div className="loader-wrapper">
-                  <div className="loader-spin"></div>
+                  <SplineCanvas
+                    scene={HERO_SCENE_URL}
+                    shouldLoad={showHero}
+                    onReadyChange={setIsSceneReady}
+                  />
                 </div>
               )}
             </ScenePanel>
@@ -385,14 +440,21 @@ const Hero = () => {
             <TransitionGroup component={null}>
               {showHero && (
                 <CSSTransition classNames="fadeup" timeout={navDelay}>
-                  <HeroSceneLayer style={{ transitionDelay: '100ms' }} aria-hidden="true">
-                    {shouldShowSpline ? (
+                  <HeroSceneLayer
+                    $sceneReady={isSceneReady}
+                    style={{ transitionDelay: '100ms' }}
+                    aria-hidden="true"
+                  >
+                    <div className="loader-wrapper">
+                      <HeroSceneFallback />
+                    </div>
+                    {shouldShowSpline && (
                       <div className="scene-shell">
-                        <SplineCanvas scene={HERO_SCENE_URL} />
-                      </div>
-                    ) : (
-                      <div className="loader-wrapper">
-                        <div className="loader-spin"></div>
+                        <SplineCanvas
+                          scene={HERO_SCENE_URL}
+                          shouldLoad={showHero}
+                          onReadyChange={setIsSceneReady}
+                        />
                       </div>
                     )}
                   </HeroSceneLayer>

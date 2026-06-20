@@ -13,13 +13,57 @@ const StyledAboutSection = styled.section`
     display: grid;
     grid-template-columns: 3fr 2fr;
     grid-gap: 50px;
+    align-items: start;
 
     @media (max-width: 768px) {
       display: block;
     }
   }
 `;
-const StyledText = styled.div``;
+const StyledText = styled.div`
+  p {
+    text-align: left;
+  }
+
+  .skills-block {
+    margin-top: 56px;
+  }
+
+  .skills-heading {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin: 0 0 24px;
+    width: 100%;
+    color: var(--lightest-slate);
+    font-family: var(--font-heading);
+    font-size: clamp(26px, 5vw, var(--fz-heading));
+    font-weight: 600;
+    line-height: 1.1;
+    white-space: nowrap;
+
+    &:after {
+      content: '';
+      display: block;
+      position: relative;
+      top: -2px;
+      width: 220px;
+      height: 1px;
+      margin-left: 20px;
+      background-color: var(--lightest-navy);
+      @media (max-width: 1080px) {
+        width: 160px;
+      }
+      @media (max-width: 768px) {
+        width: 100%;
+      }
+      @media (max-width: 600px) {
+        margin-left: 10px;
+      }
+    }
+  }
+`;
+
 const StyledPic = styled.div`
   position: relative;
   max-width: 300px;
@@ -55,7 +99,6 @@ const StyledPic = styled.div`
     .img {
       position: relative;
       border-radius: var(--border-radius);
-      // filter: grayscale(100%) contrast(1);
       transition: var(--transition);
     }
 
@@ -103,25 +146,27 @@ const About = () => {
         <StyledText>
           <div>
             <p>
-              I&apos;m a Cloud Engineer at <a href="https://www.stratogent.com">Stratogent</a> who
-              genuinely enjoys the problem-solving side of infrastructure, figuring out how to make
-              systems more secure, scalable, and cost-efficient.
+              I&apos;m a Senior Cloud Engineer at <a href="https://ptp.cloud/">PTP</a>, building and
+              maintaining AWS infrastructure for life science companies.
             </p>
 
             <p>
-              Over the past two years, I&apos;ve worked across a pretty wide stack: AWS, Linux,
-              Docker, Terraform, CI/CD pipelines, serverless architectures, and I&apos;m still
-              adding to it. I&apos;ve found my sweet spot in translating messy, real-world
-              application requirements into clean cloud operations.
+              My work sits at the intersection of security and scale, whether I&apos;m standing up
+              greenfield environments from scratch or hardening and extending existing
+              infrastructure. Life science data is sensitive by nature, so security isn&apos;t an
+              afterthought in what I build; it&apos;s the starting point.
             </p>
 
             <p>
-              Outside of work, that same instinct carries over. I&apos;m usually tinkering with
-              something, a new tool, a workflow I want to streamline, or just a side project that
-              scratches a curiosity itch. It keeps me sharp and, honestly, it&apos;s just fun.
+              I use Terraform for IaC and GitHub Actions for CI/CD, and I regularly audit accounts
+              for cost optimisation, keeping spend lean without cutting corners on compliance or
+              reliability.
             </p>
           </div>
-          <SkillsSection />
+          <div className="skills-block">
+            <h3 className="skills-heading">My Current Skill Sets</h3>
+            <SkillsSection />
+          </div>
         </StyledText>
 
         <StyledPic>

@@ -5,8 +5,9 @@ import styled from 'styled-components';
 const StyledSkills = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
-  margin-top: 28px;
+  justify-content: flex-start;
+  gap: 18px 24px;
+  margin-top: 0;
 
   .skill-card {
     display: inline-flex;
@@ -48,7 +49,6 @@ const StyledSkills = styled.div`
     gap: 16px;
 
     .skill-card {
-      justify-content: flex-start;
     }
   }
 `;

@@ -7,7 +7,7 @@ range: 'July 2023 - Present'
 url: 'https://www.stratogent.com'
 ---
 
-- Deliver secure, reliable, and cost-optimized cloud infrastructure on AWS on diverse array of projects for clients including Encoded Therapeutics, Iovance Biotherapeutics, Caribou Biosciences and many more.
-- Work alongside architects and project leads to design and implement scalable infrastructure as code solutions with Terraform.
-- Collaborate with security teams, and stakeholders to enable smooth application hosting, monitoring, and incident response on AWS.
-- Provide leadership within the engineering team through knowledge sharing, collaboration, and continuous improvement of DevOps practices.
+- Design and deploy production-grade AWS infrastructure for life sciences clients, delivering multi-account environments with Account Factory for Terraform, automated guardrails, and compliance controls.
+- Collaborate with architects and security teams to implement scalable Terraform solutions, from greenfield Control Tower deployments to enterprise-wide infrastructure imports across 5+ accounts.
+- Engineer automated data transfer pipelines and serverless workflows using DataSync, GuardDuty, Lambda, and EventBridge for secure file ingestion, malware scanning, and operational automation.
+- Drive continuous improvement through knowledge sharing on Kubernetes, Terraform import strategies, and cost optimization techniques, contributing to a 30% reduction in infrastructure spend.
