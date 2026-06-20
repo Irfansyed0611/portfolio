@@ -205,7 +205,9 @@ const HoloCertCard = ({ cert, index }) => {
   // Staggered floating effect
   useGSAP(
     () => {
-      if (prefersReducedMotion) {return;}
+      if (prefersReducedMotion) {
+        return;
+      }
 
       floatTweenRef.current = gsap.to(cardRef.current, {
         y: -6,
@@ -219,7 +221,9 @@ const HoloCertCard = ({ cert, index }) => {
   );
 
   const onMouseEnter = () => {
-    if (prefersReducedMotion || isScanning) {return;}
+    if (prefersReducedMotion || isScanning) {
+      return;
+    }
     if (floatTweenRef.current) {
       floatTweenRef.current.pause();
     }
@@ -233,7 +237,9 @@ const HoloCertCard = ({ cert, index }) => {
   };
 
   const onMouseLeave = () => {
-    if (prefersReducedMotion || isScanning) {return;}
+    if (prefersReducedMotion || isScanning) {
+      return;
+    }
     gsap.to(cardRef.current, {
       y: 0,
       scale: 1,
@@ -251,7 +257,9 @@ const HoloCertCard = ({ cert, index }) => {
   // High-tech single-sweep scan effect on click
   const handleClick = e => {
     e.preventDefault();
-    if (isScanning) {return;}
+    if (isScanning) {
+      return;
+    }
 
     setIsScanning(true);
     if (floatTweenRef.current) {
@@ -391,13 +399,17 @@ const Certifications = () => {
 
   const revealTitle = useRef(null);
   const revealGrid = useRef(null);
+  const revealContainer = useRef(null);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  // Standard ScrollTrigger reveals for the title and the grid
+  // Premium orchestrated ScrollTrigger reveal sequences
   useGSAP(
     () => {
-      if (prefersReducedMotion) {return;}
+      if (prefersReducedMotion) {
+        return;
+      }
 
+      // Smooth reveal for section header
       gsap.from(revealTitle.current, {
         scrollTrigger: {
           trigger: revealTitle.current,
@@ -409,26 +421,39 @@ const Certifications = () => {
         ease: 'power2.out',
       });
 
-      gsap.from(revealGrid.current, {
-        scrollTrigger: {
-          trigger: revealGrid.current,
-          start: 'top 80%',
+      // Orchestrated staggered emergence for the cards grid
+      gsap.fromTo(
+        gsap.utils.toArray(revealGrid.current.children),
+        {
+          opacity: 0,
+          y: 40,
+          scale: 0.95,
         },
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        ease: 'power3.out',
-      });
+        {
+          scrollTrigger: {
+            trigger: revealGrid.current,
+            start: 'top 82%',
+          },
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          stagger: 0.12,
+          duration: 0.9,
+          ease: 'power4.out',
+        },
+      );
     },
-    { scope: revealTitle },
+    { scope: revealContainer },
   );
 
   const certs = data.certifications.edges;
 
-  if (!certs.length) {return null;}
+  if (!certs.length) {
+    return null;
+  }
 
   return (
-    <StyledCertificationsSection id="certifications">
+    <StyledCertificationsSection id="certifications" ref={revealContainer}>
       <h2 className="numbered-heading" ref={revealTitle}>
         Certifications
       </h2>

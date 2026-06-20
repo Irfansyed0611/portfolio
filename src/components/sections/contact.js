@@ -5,7 +5,7 @@ import sr from '@utils/sr';
 import { usePrefersReducedMotion } from '@hooks';
 
 const StyledContactSection = styled.section`
-  max-width: 600px;
+  max-width: 1000px;
   margin: 0 auto 100px;
   text-align: center;
 
@@ -33,6 +33,11 @@ const StyledContactSection = styled.section`
 
   .title {
     font-size: clamp(40px, 5vw, 60px);
+  }
+
+  p {
+    max-width: 600px;
+    margin: 20px auto 0;
   }
 
   .email-link {

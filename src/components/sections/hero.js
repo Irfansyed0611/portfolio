@@ -3,8 +3,9 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled from 'styled-components';
 import { navDelay } from '@utils';
 import { usePrefersReducedMotion } from '@hooks';
+import { StaticImage } from 'gatsby-plugin-image';
+import { email } from '@config';
 import SplineCanvas, { shouldEnableSplineExperience } from '@components/spline-canvas';
-import MobileSocials from '@components/MobileSocials';
 
 const HERO_SCENE_URL = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
 
@@ -57,6 +58,7 @@ const ContentPanel = styled.div`
         h2.tagline,
         p.description,
         .resume-link,
+        .email-link,
         .mobile-socials,
         .mobile-socials * {
           pointer-events: auto;
@@ -94,25 +96,55 @@ const ContentPanel = styled.div`
     color: var(--slate);
     font-size: var(--fz-lg);
   }
+`;
+
+const HeroAvatar = styled.div`
+  display: block;
+  margin: 0 0 25px 4px;
+  width: 130px;
+  height: 130px;
+
+  .wrapper {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(201, 169, 110, 0.25);
+
+    .avatar-img {
+      display: block;
+      border-radius: var(--border-radius);
+    }
+  }
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+`;
+
+const HeroButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 30px;
 
   .resume-link {
     ${({ theme }) => theme.mixins.bigButton};
-    align-self: flex-start;
-    margin-top: 30px;
+    margin-top: 0;
   }
 
-  .mobile-socials {
-    align-self: flex-start;
-    width: auto;
-    max-width: none;
-    margin-top: 18px;
-    margin-left: 0;
-    margin-right: 0;
+  .email-link {
+    display: none;
   }
 
-  .mobile-socials ul {
-    justify-content: flex-start;
-    gap: 6px;
+  @media (max-width: 767px) {
+    .email-link {
+      display: inline-block;
+      ${({ theme }) => theme.mixins.bigButton};
+      margin-top: 0;
+      pointer-events: auto !important;
+    }
   }
 `;
 
@@ -411,13 +443,30 @@ const Hero = () => {
         {prefersReducedMotion ? (
           <>
             <ContentPanel>
+              <HeroAvatar>
+                <div className="wrapper">
+                  <StaticImage
+                    className="avatar-img"
+                    src="../../images/me.png"
+                    width={130}
+                    height={130}
+                    quality={95}
+                    formats={['AUTO', 'WEBP', 'AVIF']}
+                    alt="Headshot"
+                  />
+                </div>
+              </HeroAvatar>
               <p className="intro">Hi, my name is</p>
               <h1 className="name">Syed Irfan.</h1>
               <h2 className="tagline">I build things in the cloud.</h2>
-              <a className="resume-link" href="/Resume.pdf" target="_blank" rel="noreferrer">
-                Resume
-              </a>
-              <MobileSocials className="mobile-socials" />
+              <HeroButtonContainer>
+                <a className="resume-link" href="/Resume.pdf" target="_blank" rel="noreferrer">
+                  Resume
+                </a>
+                <a className="email-link" href={`mailto:${email}`}>
+                  Say Hello
+                </a>
+              </HeroButtonContainer>
             </ContentPanel>
 
             <ScenePanel $sceneReady={isSceneReady}>
@@ -466,13 +515,35 @@ const Hero = () => {
               {showHero && (
                 <CSSTransition classNames="fadeup" timeout={navDelay}>
                   <ContentPanel $passThrough>
+                    <HeroAvatar>
+                      <div className="wrapper">
+                        <StaticImage
+                          className="avatar-img"
+                          src="../../images/me.png"
+                          width={130}
+                          height={130}
+                          quality={95}
+                          formats={['AUTO', 'WEBP', 'AVIF']}
+                          alt="Headshot"
+                        />
+                      </div>
+                    </HeroAvatar>
                     <p className="intro">Hi, my name is</p>
                     <h1 className="name">Syed Irfan.</h1>
                     <h2 className="tagline">I build things in the cloud.</h2>
-                    <a className="resume-link" href="/Resume.pdf" target="_blank" rel="noreferrer">
-                      Resume
-                    </a>
-                    <MobileSocials className="mobile-socials" />
+                    <HeroButtonContainer>
+                      <a
+                        className="resume-link"
+                        href="/Resume.pdf"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Resume
+                      </a>
+                      <a className="email-link" href={`mailto:${email}`}>
+                        Say Hello
+                      </a>
+                    </HeroButtonContainer>
                   </ContentPanel>
                 </CSSTransition>
               )}
