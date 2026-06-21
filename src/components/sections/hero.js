@@ -162,7 +162,12 @@ const HeroSceneLayer = styled.div`
 
   .scene-shell {
     position: absolute;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    max-width: 100vw;
     overflow: visible;
   }
 
@@ -178,11 +183,13 @@ const HeroSceneLayer = styled.div`
   }
 
   .loader-wrapper {
-    width: 100%;
-    height: 100%;
     position: absolute;
     top: 0;
-    left: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    max-width: 100vw;
     pointer-events: none;
     opacity: ${({ $sceneReady }) => ($sceneReady ? 0 : 1)};
     transition: opacity 280ms ease;
@@ -263,9 +270,11 @@ const ScenePanel = styled.div`
   .scene-shell {
     position: absolute;
     top: 0;
-    right: 0;
     bottom: 0;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    max-width: 100vw;
     overflow: visible;
   }
 
@@ -281,11 +290,13 @@ const ScenePanel = styled.div`
   }
 
   .loader-wrapper {
-    width: 100%;
-    height: 100%;
     position: absolute;
     top: 0;
-    left: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    max-width: 100vw;
     pointer-events: none;
     opacity: ${({ $sceneReady }) => ($sceneReady ? 0 : 1)};
     transition: opacity 280ms ease;
