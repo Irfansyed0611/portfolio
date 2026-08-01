@@ -1,0 +1,6 @@
+{
+  "name": "Futuristic Preloader",
+  "description": "A sci-fi inspired loading sequence that transitions into an animated hero section.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

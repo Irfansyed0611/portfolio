@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 
 let runtimePromise = null;
 const scenePreloadPromises = new Map();
-const HERO_LOAD_DELAY = 450;
+const HERO_LOAD_DELAY = 0;
 const OFFSCREEN_PAUSE_DELAY = 180;
-const LOW_END_DEVICE_MEMORY_GB = 4;
-const LOW_END_CPU_CORES = 4;
+const LOW_END_DEVICE_MEMORY_GB = 2;
+const LOW_END_CPU_CORES = 2;
 const DEFAULT_TARGET_FPS = 30;
 const LOW_END_TARGET_FPS = 24;
 
@@ -21,15 +21,22 @@ export const preloadSplineRuntime = () => {
   void loadSplineRuntime();
 };
 
+if (typeof window !== 'undefined') {
+  preloadSplineRuntime();
+}
+
 export const preloadSplineScene = scene => {
   if (typeof window === 'undefined' || !scene) {
     return null;
   }
 
   if (!scenePreloadPromises.has(scene)) {
+    // credentials must be 'same-origin' (not 'omit') to match the credentials mode implied
+    // by crossOrigin="anonymous" on the <link rel="preload"> hint, otherwise the browser
+    // treats this as a cache miss and re-fetches instead of reusing the preloaded response.
     const preloadPromise = fetch(scene, {
       mode: 'cors',
-      credentials: 'omit',
+      credentials: 'same-origin',
     }).catch(() => null);
 
     scenePreloadPromises.set(scene, preloadPromise);
@@ -165,6 +172,28 @@ const SplineCanvas = ({ scene, className, shouldLoad, loadDelayMs, onReadyChange
   useEffect(() => {
     onReadyChange?.(isReady);
   }, [isReady, onReadyChange]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return undefined;
+    }
+
+    // Spline's runtime attaches its own "wheel" listener directly on the canvas
+    // and calls preventDefault() on it when the scene has scroll capture enabled,
+    // which blocks page scrolling while the cursor is over the hero. Stopping
+    // propagation here, in the capture phase, keeps that listener from ever
+    // running while leaving the browser's native scroll behavior untouched.
+    const releaseWheelToPage = event => {
+      event.stopPropagation();
+    };
+
+    container.addEventListener('wheel', releaseWheelToPage, { capture: true, passive: true });
+
+    return () => {
+      container.removeEventListener('wheel', releaseWheelToPage, { capture: true });
+    };
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) {

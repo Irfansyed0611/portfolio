@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import styled from 'styled-components';
 import { navDelay } from '@utils';
 import { usePrefersReducedMotion } from '@hooks';
 import { StaticImage } from 'gatsby-plugin-image';
 import { email } from '@config';
-import SplineCanvas, { shouldEnableSplineExperience } from '@components/spline-canvas';
+import SplineCanvas, {
+  shouldEnableSplineExperience,
+  preloadSplineScene,
+  preloadSplineRuntime,
+} from '@components/spline-canvas';
 
 const HERO_SCENE_URL = 'https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode';
+
+if (typeof window !== 'undefined') {
+  preloadSplineRuntime();
+  preloadSplineScene(HERO_SCENE_URL);
+}
 
 const StyledHeroSection = styled.section`
   ${({ theme }) => theme.mixins.flexCenter};
@@ -373,41 +383,25 @@ const HeroSceneFallback = () => (
 const Hero = () => {
   const [isDesktop, setIsDesktop] = useState(false);
   const [canUseSpline, setCanUseSpline] = useState(false);
+  const [hasCheckedCapability, setHasCheckedCapability] = useState(false);
   const [isSceneReady, setIsSceneReady] = useState(false);
-  const [showHero, setShowHero] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const desktopQuery = window.matchMedia('(min-width: 769px)');
+    // usePrefersReducedMotion() defaults to `true` for one render (SSR-safe placeholder)
+    // before its own effect resolves the real value, so read the media query directly
+    // here to avoid computing shouldShowSpline off that stale default.
+    const actualPrefersReducedMotion = !window.matchMedia('(prefers-reduced-motion: no-preference)')
+      .matches;
 
     setIsDesktop(desktopQuery.matches);
-    setCanUseSpline(shouldEnableSplineExperience(prefersReducedMotion));
-    setIsSceneReady(false);
-
-    const preconnectHref = 'https://prod.spline.design';
-    const existingPreconnect = document.head.querySelector(`link[href="${preconnectHref}"]`);
-    const existingDnsPrefetch = document.head.querySelector(
-      `link[rel="dns-prefetch"][href="${preconnectHref}"]`,
-    );
-    let appendedPreconnect = null;
-    let appendedDnsPrefetch = null;
-    if (!existingPreconnect) {
-      appendedPreconnect = document.createElement('link');
-      appendedPreconnect.rel = 'preconnect';
-      appendedPreconnect.href = preconnectHref;
-      appendedPreconnect.crossOrigin = 'anonymous';
-      document.head.appendChild(appendedPreconnect);
-    }
-    if (!existingDnsPrefetch) {
-      appendedDnsPrefetch = document.createElement('link');
-      appendedDnsPrefetch.rel = 'dns-prefetch';
-      appendedDnsPrefetch.href = preconnectHref;
-      document.head.appendChild(appendedDnsPrefetch);
-    }
+    setCanUseSpline(shouldEnableSplineExperience(actualPrefersReducedMotion));
+    setHasCheckedCapability(true);
 
     const handleMediaChange = event => {
       setIsDesktop(event.matches);
-      setCanUseSpline(shouldEnableSplineExperience(prefersReducedMotion));
+      setCanUseSpline(shouldEnableSplineExperience(actualPrefersReducedMotion));
       setIsSceneReady(false);
     };
 
@@ -417,39 +411,36 @@ const Hero = () => {
       desktopQuery.addListener(handleMediaChange);
     }
 
-    const cleanupMediaListener = () => {
+    return () => {
       if (desktopQuery.removeEventListener) {
         desktopQuery.removeEventListener('change', handleMediaChange);
       } else {
         desktopQuery.removeListener(handleMediaChange);
       }
     };
-
-    return () => {
-      cleanupMediaListener();
-      if (appendedPreconnect) {
-        appendedPreconnect.remove();
-      }
-      if (appendedDnsPrefetch) {
-        appendedDnsPrefetch.remove();
-      }
-    };
-  }, [prefersReducedMotion]);
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      setShowHero(true);
-      return;
-    }
-
-    const timeout = setTimeout(() => setShowHero(true), 100);
-    return () => clearTimeout(timeout);
   }, [prefersReducedMotion]);
 
   const shouldShowSpline = canUseSpline && isDesktop;
 
+  useEffect(() => {
+    if (!hasCheckedCapability) {
+      return;
+    }
+
+    if (isSceneReady || !shouldShowSpline) {
+      window.dispatchEvent(new CustomEvent('hero-robot-ready'));
+    }
+  }, [hasCheckedCapability, isSceneReady, shouldShowSpline]);
+
   return (
     <StyledHeroSection>
+      <Helmet>
+        <link rel="preconnect" href="https://prod.spline.design" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://prod.spline.design" />
+        <link rel="preload" as="fetch" href={HERO_SCENE_URL} crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://unpkg.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://unpkg.com" />
+      </Helmet>
       <HeroContainer>
         {prefersReducedMotion ? (
           <>
@@ -486,11 +477,7 @@ const Hero = () => {
               </div>
               {shouldShowSpline && (
                 <div className="scene-shell" aria-hidden="true">
-                  <SplineCanvas
-                    scene={HERO_SCENE_URL}
-                    shouldLoad={showHero}
-                    onReadyChange={setIsSceneReady}
-                  />
+                  <SplineCanvas scene={HERO_SCENE_URL} onReadyChange={setIsSceneReady} />
                 </div>
               )}
             </ScenePanel>
@@ -498,66 +485,53 @@ const Hero = () => {
         ) : (
           <>
             <TransitionGroup component={null}>
-              {showHero && (
-                <CSSTransition classNames="fadeup" timeout={navDelay}>
-                  <HeroSceneLayer
-                    $sceneReady={isSceneReady}
-                    style={{ transitionDelay: '100ms' }}
-                    aria-hidden="true"
-                  >
-                    <div className="loader-wrapper">
-                      <HeroSceneFallback />
+              <CSSTransition classNames="fadeup" timeout={navDelay}>
+                <HeroSceneLayer
+                  $sceneReady={isSceneReady}
+                  style={{ transitionDelay: '100ms' }}
+                  aria-hidden="true"
+                >
+                  <div className="loader-wrapper">
+                    <HeroSceneFallback />
+                  </div>
+                  {shouldShowSpline && (
+                    <div className="scene-shell">
+                      <SplineCanvas scene={HERO_SCENE_URL} onReadyChange={setIsSceneReady} />
                     </div>
-                    {shouldShowSpline && (
-                      <div className="scene-shell">
-                        <SplineCanvas
-                          scene={HERO_SCENE_URL}
-                          shouldLoad={showHero}
-                          onReadyChange={setIsSceneReady}
-                        />
-                      </div>
-                    )}
-                  </HeroSceneLayer>
-                </CSSTransition>
-              )}
+                  )}
+                </HeroSceneLayer>
+              </CSSTransition>
             </TransitionGroup>
 
             <TransitionGroup component={null}>
-              {showHero && (
-                <CSSTransition classNames="fadeup" timeout={navDelay}>
-                  <ContentPanel $passThrough>
-                    <HeroAvatar>
-                      <div className="wrapper">
-                        <StaticImage
-                          className="avatar-img"
-                          src="../../images/me.png"
-                          width={130}
-                          height={130}
-                          quality={95}
-                          formats={['AUTO', 'WEBP', 'AVIF']}
-                          alt="Headshot"
-                        />
-                      </div>
-                    </HeroAvatar>
-                    <p className="intro">Hi, my name is</p>
-                    <h1 className="name">Syed Irfan.</h1>
-                    <h2 className="tagline">I build things in the cloud.</h2>
-                    <HeroButtonContainer>
-                      <a
-                        className="resume-link"
-                        href="/Resume.pdf"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Resume
-                      </a>
-                      <a className="email-link" href={`mailto:${email}`}>
-                        Say Hello
-                      </a>
-                    </HeroButtonContainer>
-                  </ContentPanel>
-                </CSSTransition>
-              )}
+              <CSSTransition classNames="fadeup" timeout={navDelay}>
+                <ContentPanel $passThrough>
+                  <HeroAvatar>
+                    <div className="wrapper">
+                      <StaticImage
+                        className="avatar-img"
+                        src="../../images/me.png"
+                        width={130}
+                        height={130}
+                        quality={95}
+                        formats={['AUTO', 'WEBP', 'AVIF']}
+                        alt="Headshot"
+                      />
+                    </div>
+                  </HeroAvatar>
+                  <p className="intro">Hi, my name is</p>
+                  <h1 className="name">Syed Irfan.</h1>
+                  <h2 className="tagline">I build things in the cloud.</h2>
+                  <HeroButtonContainer>
+                    <a className="resume-link" href="/Resume.pdf" target="_blank" rel="noreferrer">
+                      Resume
+                    </a>
+                    <a className="email-link" href={`mailto:${email}`}>
+                      Say Hello
+                    </a>
+                  </HeroButtonContainer>
+                </ContentPanel>
+              </CSSTransition>
             </TransitionGroup>
 
             <ScenePanel aria-hidden="true" />
