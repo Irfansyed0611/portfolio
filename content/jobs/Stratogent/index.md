@@ -1,10 +1,10 @@
 ---
 date: '2023-07-10'
-title: 'System Analyst'
-company: 'Stratogent - A PTP Company'
+title: 'Senior Cloud Engineer'
+company: 'PTP'
 location: 'Bengaluru, India'
 range: 'July 2023 - Present'
-url: 'https://www.stratogent.com'
+url: 'https://www.ptp.cloud'
 ---
 
 - Design and deploy production-grade AWS infrastructure for life sciences clients, delivering multi-account environments with Account Factory for Terraform, automated guardrails, and compliance controls.
